@@ -1,18 +1,4 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of sqlquerys
- *
- * @author amatveev
- */
-
-
 class sqlQuerys 
 {
     var $connection = null;
@@ -31,18 +17,14 @@ class sqlQuerys
         }
         catch(\PDOException $ex)
         {
-            echo($ex->getMessage());
+            throw $ex;
         }
         
     }
     
-    function selectData($request)
-    {
-       $cachedb = new CACHEDB($request);
-       $tableName = $cachedb->GetCachePostfix();
-       
-       
-        
+    function selectData($tableName, $channels, $time, $aggregator)
+    {        
+        $columns = $this->createColumns($channels);
         try
         {
             $state = $this->connection->prepare('SHOW COLUMNS FROM  ' . $tableName . ' LIKE  "%ns%"');
@@ -56,9 +38,9 @@ class sqlQuerys
             
             $handler = $this->connection->prepare('SELECT ' . $columns . ' FROM `' . $tableName . '` WHERE (`time` <= ?) AND (`time` >= ?) AND (`time` LIKE ?) ORDER BY `time`');
                                    
-            $handler->bindValue(1, $rightTime, \PDO::PARAM_STR);
-            $handler->bindValue(2, $leftTime, \PDO::PARAM_STR); 
-            $handler->bindValue(3, $level, \PDO::PARAM_STR);            
+            $handler->bindValue(1, $time->splitRightTime(), \PDO::PARAM_STR);
+            $handler->bindValue(2, $time->splitLeftTime(), \PDO::PARAM_STR); 
+            $handler->bindValue(3, $aggregator, \PDO::PARAM_STR);            
             
             $handler->execute();
 
@@ -71,5 +53,15 @@ class sqlQuerys
             throw $ex;
         }
         
+    }
+    
+    function createColumns($channels)
+    {
+        $string = "";
+        foreach($channels as $channel)
+        {
+            $string .= "`v" . $channel[0] . "`";
+        }
+        return $string;
     }
 }
