@@ -12,8 +12,10 @@ abstract class WebSocketServer {
   protected $interactive                          = true;
   protected $headerOriginRequired                 = false;
   protected $headerSecWebSocketProtocolRequired   = false;
-  protected $headerSecWebSocketExtensionsRequired = false;
-
+  protected $headerSecWebSocketExtensionsRequired = false; 
+  
+  protected $count = 0;
+  
   function __construct($addr, $port, $bufferLength = 2048)
   {
     $this->maxBufferSize = $bufferLength;
@@ -64,8 +66,9 @@ abstract class WebSocketServer {
             $this->stdout("Client connected. " . $client);
           }
         } 
-        else {
-          $numBytes = @socket_recv($socket,$buffer,$this->maxBufferSize,0); 
+        else {  
+          $numBytes = @socket_recv($socket,$buffer,$this->maxBufferSize,0);   
+          
           if ($numBytes === false) {
             throw new Exception('Socket error: ' . socket_strerror(socket_last_error($socket)));
           }
@@ -82,25 +85,25 @@ abstract class WebSocketServer {
               }
               $this->doHandshake($user,$buffer);
             } 
-            else {
+            else {                   
               if (($message = $this->deframe($buffer, $user)) !== FALSE) {
                 if($user->hasSentClose) {
                   $this->disconnect($user->socket);
                   $this->stdout("Client disconnected. Sent close: " . $socket);
                 }
-                else {
+                else {                    
                    $pid = pcntl_fork();
                    if ($pid) 
                    {
                         pcntl_wait($status); 
                    } else 
-                   {
+                   {                       
                         $this->process($user, $message); // Re-check this. utf8  
-                   }                  
+                   }             
                 }
               } 
               else {
-                do {
+                do {                   
                   $numByte = @socket_recv($socket,$buffer,$this->maxBufferSize,MSG_PEEK);
                   if ($numByte > 0) {
                     $numByte = @socket_recv($socket,$buffer,$this->maxBufferSize,0);
@@ -109,15 +112,8 @@ abstract class WebSocketServer {
                         $this->disconnect($user->socket);
                         $this->stdout("Client disconnected. Sent close: " . $socket);
                       }
-                      else {                          
-                                $pid = pcntl_fork();
-                                if ($pid) 
-                                {
-                                     pcntl_wait($status); 
-                                } else 
-                                {
-                                     $this->process($user, $message); // Re-check this. utf8  
-                                }  
+                      else {                                      
+                             $this->process($user, $message); // Re-check this. utf8                                
                       }
                     }
                   }

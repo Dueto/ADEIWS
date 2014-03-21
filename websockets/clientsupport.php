@@ -16,9 +16,9 @@ class clientSupport extends WebSocketServer
     
     
     protected function process ($user, $message) 
-    {        
+    {  
         $query = parse_url($message, PHP_URL_QUERY);
-
+        
         $basicRequest = new BASICRequest($query);
         $sourceRequest = new SOURCERequest($basicRequest->GetProps());
         $request = new REQUEST($basicRequest->GetProps());
@@ -29,16 +29,14 @@ class clientSupport extends WebSocketServer
         $levels = $options->Get("cache_config");
         $channelLabels = $options->Get("items");
         $maxLevel = $options->Get("min_resolution");
+        $period = $options->Get("period");
         $window = $basicRequest->GetProp("window");        
-        $time = new timeFormat($basicRequest->GetProp("experiment"));         
-        $needenLevel = $this->getLevelforTable($levels, $window, $maxLevel);
+        $time = new timeFormat($request->GetProp("experiment"));
+        
+        $needenLevel = $this->getLevelforTable($levels, $window, $maxLevel, $period);
         
         $time->formatDate($this->dataLevel[$window]);
-        
-        if($needenLevel == "")
-        {
-            $needenLevel = "0";
-        }            
+          
         $tableName = "cache" . $needenLevel . $cachePostfix;
         $db_items = explode(",", $request->GetProp("db_mask"));
         
@@ -108,7 +106,7 @@ class clientSupport extends WebSocketServer
         return $stringToSend;
     }
     
-    protected function getLevelforTable($levels, $window, $maxLevel)
+    protected function getLevelforTable($levels, $window, $maxLevel, $period)
     {  
         print_r($window);
         $min = 999999999; 
@@ -126,8 +124,12 @@ class clientSupport extends WebSocketServer
         {           
             return $maxLevel;
         }
-        else
+        else if($needenLevel == $period)
         {           
+            return "0";
+        }
+        else
+        {
             return $needenLevel;
         }
     }

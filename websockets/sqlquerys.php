@@ -27,6 +27,7 @@ class sqlQuerys
         try
         { 
             $this->checkMs($channels, $tableName);
+            print_r($this->columns);
             
             $handler = $this->connection->prepare('SELECT ' . $this->columns . ' FROM `' . $tableName . '` WHERE (`time` <= ?) AND (`time` >= ?) AND (`time` LIKE ?) ORDER BY `time`');
                                    

@@ -6,10 +6,10 @@ class timeFormat
     private $rightTime;
     private $leftTime;
     
-    public function timeFormat($_window)
+    function __construct($_window)
     {
         $this->window = $_window;
-        $this->rightTime = date("Y-m-d H:i:s", $this->splitRightTime());
+        $this->rightTime = date("Y-m-d H:i:s", $this->splitRightTime());       
         $this->leftTime = date("Y-m-d H:i:s", $this->splitLeftTime());
     }
     
@@ -22,8 +22,8 @@ class timeFormat
     
     public function splitRightTime()
     {
-        $rightTime = explode('-', $this->window)[1];
-        $rightTime = explode('.', $rightTime)[0];
+        $rightTime = explode('-', $this->window)[1];        
+        $rightTime = explode('.', $rightTime)[0];        
         return $rightTime;
     }
     
@@ -54,9 +54,10 @@ class timeFormat
  
     public function formatDate($format)
     {
-        $aggregatorLen = strlen($format) + 1;
-        $this->rightTime = substr($this->rightTime, 0, $aggregatorLen) . $format;
-        $this->leftTime = substr($this->leftTime, 0, $aggregatorLen) . $format;
+        $aggregatorLen = strlen($format);
+        $timeLen = strlen($this->rightTime);
+        $this->rightTime = substr($this->rightTime, 0, $timeLen - $aggregatorLen) . $format;
+        $this->leftTime = substr($this->leftTime, 0, $timeLen - $aggregatorLen) . $format;
     }
     
     
