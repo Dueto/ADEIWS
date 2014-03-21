@@ -89,7 +89,14 @@ abstract class WebSocketServer {
                   $this->stdout("Client disconnected. Sent close: " . $socket);
                 }
                 else {
-                  $this->process($user, $message); // Re-check this. utf8 
+                   $pid = pcntl_fork();
+                   if ($pid) 
+                   {
+                        pcntl_wait($status); 
+                   } else 
+                   {
+                        $this->process($user, $message); // Re-check this. utf8  
+                   }                  
                 }
               } 
               else {
@@ -102,8 +109,15 @@ abstract class WebSocketServer {
                         $this->disconnect($user->socket);
                         $this->stdout("Client disconnected. Sent close: " . $socket);
                       }
-                      else {
-                       $this->process($user,$message);
+                      else {                          
+                                $pid = pcntl_fork();
+                                if ($pid) 
+                                {
+                                     pcntl_wait($status); 
+                                } else 
+                                {
+                                     $this->process($user, $message); // Re-check this. utf8  
+                                }  
                       }
                     }
                   }
