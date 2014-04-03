@@ -257,6 +257,59 @@ try {
 		-1 => _("Selection"),
 	    );
 	break;
+	case 'max_resolution':		
+		$r = new REQUEST($_GET);
+		$options = $r->GetOptions();
+		$maxres = $options->Get("period");	
+		$list = array(
+		$maxres => _("Max resolution"),		
+		);
+	break;
+	case 'get_table_name':		
+		$r = new REQUEST($_GET);
+		$sourceRequest = new SOURCERequest($r->GetProps());
+		$cacheDb = new CACHEDB($sourceRequest);
+
+		$level = $r->GetProp("window");
+		$options = $r->GetOptions();
+		$postfix = $cacheDb->GetCachePostfix();
+		$existingLevels = $options->Get("cache_config");
+		$maxres = $options->Get("period");
+		$needenLevel = 0;
+
+		foreach ($existingLevels as $levels) 
+		{
+			if($levels["res"] > $level)
+			{				
+				continue;
+			}
+			$needenLevel = $levels["res"];
+			if($maxres > $needenLevel)
+			{
+				$needenLevel = 0;
+			}
+			break 1;
+		}	
+
+		$tableName = "cache" . $needenLevel . $postfix;
+		
+		$list = array(
+		$tableName => _("Table name"),		
+		);
+	break;
+	case 'cache_config':		
+		$r = new REQUEST($_GET);
+		$options = $r->GetOptions();
+		$cacheConfig = $options->Get("cache_config");			
+
+		$list = array();
+
+		foreach ($cacheConfig as $level) 
+		{
+			array_push($list, $level["res"]);
+		}
+		//$list = $cacheConfig;
+	break;
 	default:
 	    if (isset($_GET['target'])) $error = translate("Unknown list target (%s) is specified", $_GET['target']);
 	    else $error = translate("The list target is not specified");

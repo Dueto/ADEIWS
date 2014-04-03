@@ -39,8 +39,8 @@ abstract class WebSocketServer {
   
   protected function send($user,$message) 
   {  
-      $message = $this->frame($message,$user);
-      $result = @socket_write($user->socket, $message, strlen($message));
+      //$message = $this->frame($message,$user);      
+      $result = @socket_write($user->socket, $message);
   }
 
 
@@ -557,4 +557,3 @@ abstract class WebSocketServer {
     echo ")\n";
   }
 }
-
