@@ -35,7 +35,7 @@ class LOGData implements Iterator {
     global $TMP_PATH;
 
     $this->fname = LOGGER::GetLogFile($date);
-    
+
     if ($this->file) {
 	$this->CloseFile();
     }
@@ -254,7 +254,7 @@ class LOGGER {
 
  static function GetLogDir() {
     global $TMP_PATH;
-    return "$TMP_PATH/log/";
+    return "$TMP_PATH";
  }
  
  static function GetLogFile($date) {
@@ -302,12 +302,13 @@ class LOGGER {
  }
  
  function GetLogInfo($file, $pos) {
-    $fname = sprintf("%s/%s", $this->GetLogDir(), basename($file));
-    $f = @fopen($fname, "r");
+    $fname = $file; //sprintf("%s/%s", $this->GetLogDir(), basename($file)); 
+    $f = @fopen($fname, "r");   
 
-    if (!$f) 
-	throw new ADEIException(translate("It is not possible to open the specified log file (%s)", basename($file)));
+    if (!$f)     
+    throw new ADEIException(translate("It is not possible to open the specified log file (%s)", basename($file)));
 
+	
     if (($pos < 0)||(fseek($f, $pos, SEEK_SET) === false)) {
 	fclose($f);
 	throw new ADEIException(translate("Could not set specified position (%d) within specified log file (%s)", $pos, basename($file)));

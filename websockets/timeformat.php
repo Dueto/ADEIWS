@@ -9,8 +9,8 @@ class timeFormat
     function __construct($_window)
     {
         $this->window = $_window;
-        $this->rightTime = date("Y-m-d H:i:s", $this->splitRightTime());       
-        $this->leftTime = date("Y-m-d H:i:s", $this->splitLeftTime());
+        $this->rightTime = date("Y-m-d H:i:s", (int)$this->splitRightTime());       
+        $this->leftTime = date("Y-m-d H:i:s", (int)$this->splitLeftTime());
     }
     
     public function splitLeftTime()

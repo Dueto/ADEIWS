@@ -51,7 +51,8 @@ switch ($target) {
 
     try {
         $cache = new CACHEDB();
-        $flags = REQUEST::NEED_ITEMINFO|REQUEST::NEED_INFO|CACHE::TABLE_INFO;
+        $flags = REQUEST::NEED_ITEMINFO|REQUEST::NEED_INFO|CACHE::TABLE_INFO;  
+           
 	if ($multi_mode) {
 	    $info = $cache->GetCacheList($flags);
 	} else {

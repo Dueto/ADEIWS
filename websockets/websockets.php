@@ -1,5 +1,6 @@
 <?php
 
+require_once 'clientProcess.php';
 require_once 'user.php';
 
 abstract class WebSocketServer {
@@ -12,7 +13,9 @@ abstract class WebSocketServer {
   protected $interactive                          = true;
   protected $headerOriginRequired                 = false;
   protected $headerSecWebSocketProtocolRequired   = false;
-  protected $headerSecWebSocketExtensionsRequired = false; 
+  protected $headerSecWebSocketExtensionsRequired = false;
+  
+  protected $link = NULL;
   
   protected $count = 0;
   
@@ -25,6 +28,19 @@ abstract class WebSocketServer {
     socket_listen($this->master, 20)                               or die("Failed: socket_listen()");
     $this->sockets[] = $this->master;
     $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: ".$this->master);
+    
+    if($this->link === NULL)
+    {
+        try
+        {
+            $this->link = new sqlQuerys("ipekatrinadei:3306", "adei");       
+        }
+        catch(Exception $ex)
+        {
+            throw $ex;
+        }        
+    }
+    
     $this->run();    
   }
 
@@ -38,8 +54,8 @@ abstract class WebSocketServer {
   }
   
   protected function send($user,$message) 
-  {  
-      //$message = $this->frame($message,$user);      
+  {       
+      $message = $this->frame($message,$user, 'binary');      
       $result = @socket_write($user->socket, $message);
   }
 
@@ -97,8 +113,10 @@ abstract class WebSocketServer {
                    {
                         pcntl_wait($status); 
                    } else 
-                   {                       
-                        $this->process($user, $message); // Re-check this. utf8  
+                   {    
+                       $thread = new clientProcess($this->link, $this, $user, $message);
+                       $thread->start();
+                        //$this->process($user, $message); // Re-check this. utf8  
                    }             
                 }
               } 
@@ -112,8 +130,10 @@ abstract class WebSocketServer {
                         $this->disconnect($user->socket);
                         $this->stdout("Client disconnected. Sent close: " . $socket);
                       }
-                      else {                                      
-                             $this->process($user, $message); // Re-check this. utf8                                
+                      else {  
+                            $thread = new clientProcess($this->link, $this, $user, $message);
+                             $thread->start();
+                             //$this->process($user, $message); // Re-check this. utf8                                
                       }
                     }
                   }

@@ -284,7 +284,7 @@ try {
 				continue;
 			}
 			$needenLevel = $levels["res"];
-			if($maxres > $needenLevel)
+			if($maxres >= $needenLevel)
 			{
 				$needenLevel = 0;
 			}
