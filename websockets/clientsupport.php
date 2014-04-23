@@ -17,70 +17,89 @@ class clientSupport extends WebSocketServer
         $isOnePortion = $props[2];
         $aggregation = $props[3]; 
         $channelCount = $props[4];
-        $db_mask = explode(",", $props[5]);    
+        $db_mask = explode(",", $props[5]);  
         
-        print_r($tableName);
-        print_r($experiment);
-        print_r($isOnePortion);
-        print_r($aggregation);
-        print_r($channelCount);
-        print_r($db_mask);
-        
-       
         if($tableName !== NULL && $experiment !== NULL &&
            $isOnePortion !== NULL && $aggregation !== NULL &&
             $channelCount !== NULL && $db_mask !== NULL)
         {              
             try
             {               
-                $columns = $this->formColumns($tableName, $aggregation, $db_mask);
-                print_r($columns);
-                
-                $results = $this->link->selectData($tableName, $experiment, $columns);               
+                $columns = $this->formColumns($tableName, $aggregation, $db_mask);   
+                //$this->connected($user); 
+                //print_r($user->link);
+//                $user->link->closeConnection();
+//                $user->link = null;
+                $user->link = new sqlQuerys();               
+                $user->link->connect("ipekatrinadei:3306", "adei");
+                $results = $user->link->selectData($tableName, $experiment, $columns); 
                 if($results !== NULL)
                 {    
                     $stringToSend = $this->packString($results, $columns);                      
-                    $this->send($user, $stringToSend);                                          
+                    $this->send($user, $stringToSend);                     
+                    print_r("Process dead\n");
+                    exit(1);
                 }
                 else
                 {
                     $this->send($user, 'No data in request.');
+                    print_r("Process dead\n");
+                    exit(1);
                 }                 
             } 
             catch (Exception $ex) 
             {
                 $this->send($user, $ex->getMessage());
+                print_r("Process dead\n");
+                exit(1);
             }          
         }  
         else
         {            
             $this->send($user, 'All parameters should be specified.');
+            print_r("Process dead\n");
+            exit(1);
         }
+        print_r("Process dead\n");
+        exit(1);
     }
     
     protected function connected ($user) 
-    {        
-        /*if($this->link === NULL)
-        {
-            try
-            {
-                $this->link = new sqlQuerys("localhost:3306", "adei");                
-                if($this->link === NULL)
-                {         
-                    $this->send($user, 'Error in connecting to database');
-                    $this->disconnect($user);
-                }            
-            }
-            catch(Exception $ex)
-            {
-                $this->send($user, $ex->getMessage());
-                $this->disconnect($user);
-            }        
-        }*/
+    {   
+//        if($user->link === null)
+//        {
+//            $user->link = new sqlQuerys();           
+//            try
+//            {
+//                print_r("Initialized new mysql connection\n");
+//                $user->link->connect("ipekatrinadei:3306", "adei");
+//            }
+//            catch(Exception $ex)
+//            {
+//                throw $ex;
+//            }        
+//        }
+//        else
+//        {
+//            if(!$user->link->ping()) 
+//            {
+//                try
+//                {
+//                    print_r("Initialized new mysql connection\n");
+//                    $user->link->connect("ipekatrinadei:3306", "adei");
+//                }
+//                catch(Exception $ex)
+//                {
+//                    throw $ex;
+//                } 
+//            }
+//        }
     }
     
     protected function closed ($user) 
-    {       
+    {    
+        //$user->link->closeConnection();
+        //print_r("Closed mysql connection\n");
     }
     
     protected function formatTime($elem)

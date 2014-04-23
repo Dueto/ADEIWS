@@ -13,6 +13,8 @@ class WebSocketUser {
   public $sendingContinuous = false;
   public $partialMessage = "";
   
+  public $link = null;
+  
   public $hasSentClose = false;
 
   function __construct($id, $socket) {

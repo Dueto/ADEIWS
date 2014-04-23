@@ -303,6 +303,10 @@
 		"type" => "ZIP"
 	    )*/
 	),
+	"binary" => array(
+		'title' => "binary",
+		'handler' => "BINARY"
+    ),
 /*	"root" => array(
 	    'title' => "ROOT",
 	    'filter' => array (

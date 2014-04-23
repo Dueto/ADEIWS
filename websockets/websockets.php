@@ -1,6 +1,6 @@
 <?php
 
-require_once 'clientProcess.php';
+//require_once 'clientProcess.php';
 require_once 'user.php';
 
 abstract class WebSocketServer {
@@ -29,17 +29,17 @@ abstract class WebSocketServer {
     $this->sockets[] = $this->master;
     $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: ".$this->master);
     
-    if($this->link === NULL)
-    {
-        try
-        {
-            $this->link = new sqlQuerys("ipekatrinadei:3306", "adei");       
-        }
-        catch(Exception $ex)
-        {
-            throw $ex;
-        }        
-    }
+//    if($this->link === NULL)
+//    {
+//        try
+//        {
+//            $this->link = new sqlQuerys("ipekatrinadei:3306", "adei");       
+//        }
+//        catch(Exception $ex)
+//        {
+//            throw $ex;
+//        }        
+//    }
     
     $this->run();    
   }
@@ -108,16 +108,24 @@ abstract class WebSocketServer {
                   $this->stdout("Client disconnected. Sent close: " . $socket);
                 }
                 else {                    
-                   $pid = pcntl_fork();
-                   if ($pid) 
-                   {
-                        pcntl_wait($status); 
-                   } else 
-                   {    
-                       $thread = new clientProcess($this->link, $this, $user, $message);
-                       $thread->start();
+                   $pid = pcntl_fork();                 
+                       //$thread = new clientProcess($this->link, $this, $user, $message);
+                       //$thread->start();
+                       //$pid = pcntl_fork();
+                        if ($pid == -1) 
+                        {
+                            die('could not fork');
+                        } 
+                        else if ($pid) 
+                        {         
+                            //$user->link->closeConnection();
+                             //pcntl_wait($status); //Protect against Zombie children
+                        } else 
+                        {
+                             $this->process($user, $message); // Re-check this. utf8  
+                        }
                         //$this->process($user, $message); // Re-check this. utf8  
-                   }             
+                              
                 }
               } 
               else {
@@ -131,9 +139,22 @@ abstract class WebSocketServer {
                         $this->stdout("Client disconnected. Sent close: " . $socket);
                       }
                       else {  
-                            $thread = new clientProcess($this->link, $this, $user, $message);
-                             $thread->start();
-                             //$this->process($user, $message); // Re-check this. utf8                                
+                            //$thread = new clientProcess($this->link, $this, $user, $message);
+                             //$thread->start();
+                             //$this->process($user, $message); // Re-check this. utf8            
+                          $pid = pcntl_fork();        
+                            if ($pid == -1) 
+                            {
+                                die('could not fork');
+                            } 
+                            else if ($pid) 
+                            {           
+                               // $user->link->closeConnection();
+                                 //pcntl_wait($status); //Protect against Zombie children
+                            } else 
+                            {
+                                 $this->process($user, $message); // Re-check this. utf8  
+                            }
                       }
                     }
                   }
